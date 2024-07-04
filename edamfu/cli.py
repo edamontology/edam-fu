@@ -1,6 +1,6 @@
 """
-edamdiff.py
-Author: Alban Gaignard
+cli.py
+Authors: Alban Gaignard, Hervé Ménager 
 Email: alban.gaignard@univ-nantes.fr
 Date: 2023-05-31
 Description: This script compares two RDF files and outputs the differences.
@@ -8,7 +8,7 @@ Description: This script compares two RDF files and outputs the differences.
 The MIT License (MIT)
 """
 
-from rdflib import ConjunctiveGraph
+from rdflib import ConjunctiveGraph, Namespace
 from rdflib.compare import to_isomorphic, graph_diff, to_canonical_graph
 from rdflib.util import guess_format
 import difflib
@@ -80,26 +80,36 @@ def diff_edam_txt(rdf_1, rdf_2):
     # console.print(in_second.serialize(format="turtle"))
 
 
+# @click.command()
+# @click.option("--src", required=True, help="your input EDAM ontology.")
+# @click.option("--ref", required=True, help="the reference EDAM ontology.")
+# def diff_command(src, ref):
+#     """Simple program that prints a diff between two EDAM ontologies."""
+#     console.print("[bold]EDAM Diff Tool")
+#     console.print("[bold]-----------------")
+
+#     guess_format("src")
+#     diff_edam_txt(src, ref)
+
+
+# @click.command("black")
 @click.command()
-@click.option("--src", required=True, help="your input EDAM ontology.")
-@click.option("--ref", required=True, help="the reference EDAM ontology.")
-def diff_command(src, ref):
-    """Simple program that prints a diff between two EDAM ontologies."""
-    console.print("[bold]EDAM Diff Tool")
-    console.print("[bold]-----------------")
-
-    guess_format("src")
-    diff_edam_txt(src, ref)
-
-
-@click.command("black")
 @click.option("--check", is_flag=True, help="...")
-@click.option("--diff", is_flag=True, help="...")
+@click.option("--reformat", is_flag=True, help="...")
 @click.argument("filename", type=click.Path(exists=True))
-def black_command(check, diff, filename):
-    """Simple program that prints a diff between two EDAM ontologies."""
-    # console.print("[bold]EDAM Diff Tool")
-    # console.print("[bold]-----------------")
+def fu_command(check, reformat, filename):
+    """EDAM ontology reformatting tool.
+
+    Example:
+
+        python edamfu/cli.py fu-command --check tests/EDAM_min.ttl
+
+        python edamfu/cli.py fu-command --check tests/EDAM_min_mod.ttl
+
+        python edamfu/cli.py fu-command --reformat tests/EDAM_min_mod.ttl
+    """
+    # console.print("[bold]EDAM Formatting Utility")
+    # console.print("[bold]-----------------------")
 
     rdf_format = guess_format(filename)
     console.print(f"{filename} format: {rdf_format}")
@@ -110,17 +120,44 @@ def black_command(check, diff, filename):
         with open(filename, "r") as f:
             content = f.readlines()
             kg = ConjunctiveGraph().parse(filename)
-            kg_normalized_txt = to_canonical_graph(kg).serialize(format=rdf_format)
 
+            edam_ns = Namespace("http://edamontology.org/")
+            obo_ns = Namespace("http://www.geneontology.org/formats/oboInOwl#")
+            dc_ns = Namespace("http://purl.org/dc/elements/1.1/")
+            dcterms_ns = Namespace("http://purl.org/dc/terms/")
+            owl_ns = Namespace("http://www.w3.org/2002/07/owl#")
+            rdf_ns = Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+            skos_ns = Namespace("http://www.w3.org/2004/02/skos/core#")
+            xml_ns = Namespace("http://www.w3.org/XML/1998/namespace")
+            xsd_ns = Namespace("http://www.w3.org/2001/XMLSchema#")
+            doap_ns = Namespace("http://usefulinc.com/ns/doap#")
+            foaf_ns = Namespace("http://xmlns.com/foaf/0.1/")
+            rdfs_ns = Namespace("http://www.w3.org/2000/01/rdf-schema#")
+            oboInOwl_ns = Namespace("http://www.geneontology.org/formats/oboInOwl#")
+            oboLegacy_ns = Namespace("http://purl.obolibrary.org/obo/")
+
+            # kg.bind("edam", edam_ns)
+            kg.bind("", edam_ns)
+            kg.bind("obo", obo_ns)
+            kg.bind("dc", dc_ns)
+            kg.bind("dcterms", dcterms_ns)
+            kg.bind("owl", owl_ns)
+            kg.bind("rdf", rdf_ns)
+            kg.bind("skos", skos_ns)
+            kg.bind("xml", xml_ns)
+            kg.bind("xsd", xsd_ns)
+            kg.bind("doap", doap_ns)
+            kg.bind("foaf", foaf_ns)
+            kg.bind("rdfs", rdfs_ns)
+            kg.bind("oboInOwl", oboInOwl_ns)
+            kg.bind("oboLegacy", oboLegacy_ns)
+
+            kg_normalized_txt = kg.serialize(format=rdf_format)
             diff_output = difflib.unified_diff(
                 content, kg_normalized_txt.splitlines(keepends=True), n=3
             )
 
-            # if check:
-            # console.print("[bold]Checking "+filename)
-            # console.print(f"{len(list(diff_output))} differences found")
-
-            if diff:
+            if check:
                 console.print("[bold]Diff " + filename)
                 for line in diff_output:
                     if line.startswith("+"):
@@ -130,6 +167,10 @@ def black_command(check, diff, filename):
                     else:
                         console.print("[white]" + line.strip())
 
+            if reformat:
+                console.print("[bold]Reformated EDAM to " + filename + "-reformatted")
+                kg.serialize(destination=filename + "-reformatted", format=rdf_format)
+
     # diff_edam_txt(src, ref)
 
 
@@ -138,8 +179,8 @@ def entry_point():
     pass
 
 
-entry_point.add_command(black_command)
-entry_point.add_command(diff_command)
+entry_point.add_command(fu_command)
+# entry_point.add_command(diff_command)
 
 if __name__ == "__main__":
     entry_point()

@@ -1,0 +1,34 @@
+@prefix : <http://edamontology.org/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix edam: <http://purl.obolibrary.org/obo/edam#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix oboInOwl: <http://www.geneontology.org/formats/oboInOwl#> .
+@prefix oboOther: <http://purl.obolibrary.org/obo/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:data_0853 a owl:Class ;
+    rdfs:label "DNA sense specification" ;
+    :created_in "beta12orEarlier" ;
+    :obsolete_since "1.20" ;
+    :oldParent :data_2534 ;
+    oboInOwl:consider :data_2534 ;
+    oboInOwl:hasDefinition "The strand of a DNA sequence (forward or reverse)." ;
+    oboInOwl:inSubset edam:obsolete ;
+    rdfs:comment "The forward or 'top' strand might specify a sequence is to be used as given, the reverse or 'bottom' strand specifying the reverse complement of the sequence is to be used." ;
+    rdfs:subClassOf owl:DeprecatedClass ;
+    owl:deprecated "true" .
+    
+:data_0852 a owl:Class ;
+    rdfs:label "Sequence mask type" ;
+    oboInOwl:hasDefinition "A label (text token) describing the type of sequence masking to perform." ;
+    :created_in "beta12orEarlier" ;
+    rdfs:comment "Sequence masking is where specific characters or positions in a molecular sequence are masked (replaced) with an another (mask character). The mask type indicates what is masked, for example regions that are not of interest or which are information-poor including acidic protein regions, basic protein regions, proline-rich regions, low compositional complexity regions, short-periodicity internal repeats, simple repeats and low complexity regions. Masked sequences are used in database search to eliminate statistically significant but biologically uninteresting hits." ;
+    :obsolete_since "1.5" ;
+    oboInOwl:inSubset edam:obsolete ;
+    oboInOwl:consider :data_0842 ;    
+    rdfs:subClassOf owl:DeprecatedClass ;
+    owl:deprecated "true" .
