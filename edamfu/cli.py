@@ -97,15 +97,17 @@ def diff_edam_txt(rdf_1, rdf_2):
 @click.option(
     "--check", is_flag=True, help="Verify if the input file is correctly formatted."
 )
+@click.option("--diff", is_flag=True, help="Display the differences.")
 @click.option("--reformat", is_flag=True, help="Reformat the input file.")
 @click.argument("input_filename", type=click.Path(exists=True))
 @click.argument("output_filename", type=click.Path(exists=False), required=False)
-def fu_command(check, reformat, input_filename, output_filename):
+def fu_command(check, diff, reformat, input_filename, output_filename):
     """EDAM ontology reformatting tool.
 
     Example:\n
         python edamfu/cli.py --check tests/EDAM_min.ttl\n
         python edamfu/cli.py --check tests/EDAM_min_mod.ttl\n
+        python edamfu/cli.py --check --diff tests/EDAM_min_mod.ttl\n
         python edamfu/cli.py --reformat tests/EDAM_min_mod.ttl\n
     """
     # console.print("[bold]EDAM Formatting Utility")
@@ -161,13 +163,16 @@ def fu_command(check, reformat, input_filename, output_filename):
                 # console.print("[bold]Diff " + filename)
                 for line in diff_output:
                     if line.startswith("+"):
-                        # console.print("[green]" + line.strip())
+                        if diff:
+                            console.print("[green]" + line.strip())
                         nb_diff += 1
                     elif line.startswith("-"):
-                        # console.print("[red]" + line.strip())
+                        if diff:
+                            console.print("[red]" + line.strip())
                         nb_diff += 1
-                    # else:
-                    # console.print("[white]" + line.strip())
+                    else:
+                        if diff:
+                            console.print("[white]" + line.strip())
                 if nb_diff == 0:
                     console.print(
                         ":smiley:", "[bold]No reformatting needed for " + input_filename
