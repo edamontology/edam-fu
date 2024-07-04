@@ -189,8 +189,11 @@ def fu_command(check, diff, reformat, input_filename, output_filename):
 
             if reformat:
                 if output_filename:
+                    out_format = rdf_format
+                    if rdf_format == "xml":
+                        out_format = "pretty-xml"
                     console.print("[bold]Reformated EDAM to " + output_filename)
-                    kg.serialize(destination=output_filename, format=rdf_format)
+                    kg.serialize(destination=output_filename, format=out_format)
                     sys.exit(0)
                 else:
                     console.print("[bold red]Please specify an output file.")
