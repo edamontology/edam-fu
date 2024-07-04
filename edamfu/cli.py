@@ -94,29 +94,28 @@ def diff_edam_txt(rdf_1, rdf_2):
 
 # @click.command("black")
 @click.command()
-@click.option("--check", is_flag=True, help="...")
-@click.option("--reformat", is_flag=True, help="...")
+@click.option(
+    "--check", is_flag=True, help="Verify if the input file is correctly formatted."
+)
+@click.option("--reformat", is_flag=True, help="Reformat the input file.")
 @click.argument("filename", type=click.Path(exists=True))
 def fu_command(check, reformat, filename):
     """EDAM ontology reformatting tool.
 
-    Example:
-
-        python edamfu/cli.py fu-command --check tests/EDAM_min.ttl
-
-        python edamfu/cli.py fu-command --check tests/EDAM_min_mod.ttl
-
-        python edamfu/cli.py fu-command --reformat tests/EDAM_min_mod.ttl
+    Example:\n
+        python edamfu/cli.py --check tests/EDAM_min.ttl\n
+        python edamfu/cli.py --check tests/EDAM_min_mod.ttl\n
+        python edamfu/cli.py --reformat tests/EDAM_min_mod.ttl\n
     """
     # console.print("[bold]EDAM Formatting Utility")
     # console.print("[bold]-----------------------")
 
     rdf_format = guess_format(filename)
-    console.print(f"{filename} format: {rdf_format}")
+    # console.print(f"{filename} format: {rdf_format}")
     if not rdf_format in ["xml", "turtle"]:
-        exit(1)
+        sys.exit(2)
     else:
-        console.print(f"Checking {filename}")
+        # console.print(f"Checking {filename}")
         with open(filename, "r") as f:
             content = f.readlines()
             kg = ConjunctiveGraph().parse(filename)
@@ -136,7 +135,6 @@ def fu_command(check, reformat, filename):
             oboInOwl_ns = Namespace("http://www.geneontology.org/formats/oboInOwl#")
             oboLegacy_ns = Namespace("http://purl.obolibrary.org/obo/")
 
-            # kg.bind("edam", edam_ns)
             kg.bind("", edam_ns)
             kg.bind("obo", obo_ns)
             kg.bind("dc", dc_ns)
@@ -158,29 +156,43 @@ def fu_command(check, reformat, filename):
             )
 
             if check:
-                console.print("[bold]Diff " + filename)
+                nb_diff = 0
+                # console.print("[bold]Diff " + filename)
                 for line in diff_output:
                     if line.startswith("+"):
-                        console.print("[green]" + line.strip())
+                        # console.print("[green]" + line.strip())
+                        nb_diff += 1
                     elif line.startswith("-"):
-                        console.print("[red]" + line.strip())
-                    else:
-                        console.print("[white]" + line.strip())
+                        # console.print("[red]" + line.strip())
+                        nb_diff += 1
+                    # else:
+                    # console.print("[white]" + line.strip())
+                if nb_diff == 0:
+                    console.print(
+                        ":smiley:", "[bold]No reformatting needed for " + filename
+                    )
+                    sys.exit(0)
+                else:
+                    console.print(
+                        "[bold]Found " + str(nb_diff) + " differences in " + filename,
+                    )
+                    sys.exit(1)
 
             if reformat:
                 console.print("[bold]Reformated EDAM to " + filename + "-reformatted")
-                kg.serialize(destination=filename + "-reformatted", format=rdf_format)
+                kg.serialize(destination=filename, format=rdf_format)
 
     # diff_edam_txt(src, ref)
 
 
-@click.group()
-def entry_point():
-    pass
+# @click.group()
+# def entry_point():
+#    pass
 
 
-entry_point.add_command(fu_command)
+# entry_point.add_command(fu_command)
 # entry_point.add_command(diff_command)
 
 if __name__ == "__main__":
-    entry_point()
+    # entry_point()
+    fu_command()
