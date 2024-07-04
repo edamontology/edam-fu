@@ -1,0 +1,11 @@
+cy_test/__pycache__/*
+**/.ipynb_checkpoints
+**/.idea
+**/.lprof
+**/.vscode
+**/.pytest*
+**/__pycache__
+
+**/.DS_Store
+**/.coverage
+ci_test/.gitignore
